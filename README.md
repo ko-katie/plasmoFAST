@@ -1,7 +1,7 @@
 # plasmoFAST
 k-mer based tool for detecting Plasmodium falciparum lab strains from sequencing data
 
-Developed using [kmc (v3.2.4)](https://github.com/refresh-bio/KMC), [python3 (v3.8.2)](https://www.python.org/downloads/), pandas, and matplotlib
+Developed using [kmc (v3.2.4)](https://github.com/refresh-bio/KMC), python3 (v3.8.2), pandas, and matplotlib
 
 ### File Overview
 
