@@ -11,7 +11,7 @@ Developed using [kmc (v3.2.4)](https://github.com/refresh-bio/KMC), [python3 (v3
 bash run_kmc_new.sh /path/to/working_directory /path/to/sample_input_file.txt
 ```
 - **/path/to/working_directory** is the path to the working directory for analysis to be run in (note lack of trailing backslash)
-- **/path/to/sample_input_file.txt** is the path to a txt file containing path to fastq file(s) for sample, one path on each line. Sample name is extracted from file name 
+- **/path/to/sample_input_file.txt** is the path to a txt file containing path(s) to fastq file(s) for sample, one path on each line. Sample name is extracted from file name 
 
 **parse_kmc_output.py:** Python script called by run_kmc_new.sh to parse kmc output and determine frequency of variable positions. Script first reads in kmers for variable positions provided in 25mer_rc_list.txt and stores in dictionaries based on whether they are strain specific or non-strain specific. Next, the output of kmc is read in and it determines the frequency of strain specific and non-specific kmers for each variable position. Based on the number of kmers found for each variable position, and the proportion of specific vs non-specific positions, plasmoFAST determines if each variable position is "Low Coverage", "Specific", "Nonspecific", or "Mixed". Pandas is then used to provide a stacked bar plot of, for each strain, the proportion of positions found. 
 
