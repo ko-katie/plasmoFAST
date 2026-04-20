@@ -7,7 +7,9 @@ Developed using [kmc (v3.2.4)](https://github.com/refresh-bio/KMC), [python3 (v3
 
 **run_kmc_new.sh:** Bash script used to run plasmoFAST. First runs kmc on sequencing data and identify frequency of variable positions. Kmc generates a list of all kmers found in sequencing data and their frequency, which is passed to parse_kmc_output.py to determine the frequency of variable positions.
 
-'bash run_kmc_new.sh /path/to/working_directory /path/to/25mer_rc_list.txt'
+'''
+bash run_kmc_new.sh /path/to/working_directory /path/to/25mer_rc_list.txt
+'''
 
 Note: no trailing slash after working_directory path
 
