@@ -7,6 +7,7 @@ const progressLabel = document.getElementById('progress-label') as HTMLSpanEleme
 const resultsTable = document.getElementById('results-body') as HTMLTableSectionElement;
 const errorBox = document.getElementById('error') as HTMLDivElement;
 const status = document.getElementById('status') as HTMLParagraphElement;
+const elapsed = document.getElementById('elapsed') as HTMLParagraphElement;
 
 fileInput.addEventListener('change', async () => {
   const file = fileInput.files?.[0];
@@ -15,7 +16,14 @@ fileInput.addEventListener('change', async () => {
   errorBox.textContent = '';
   resultsTable.innerHTML = '';
   progressBar.value = 0;
+  elapsed.textContent = '';
   status.textContent = 'Analysing…';
+
+  const startTime = Date.now();
+  const timer = setInterval(() => {
+    const secs = ((Date.now() - startTime) / 1000).toFixed(1);
+    elapsed.textContent = `Elapsed: ${secs}s`;
+  }, 100);
 
   try {
     const result: AnalysisResult = await analyze(file, {
@@ -25,6 +33,10 @@ fileInput.addEventListener('change', async () => {
         progressLabel.textContent = `${pct}%`;
       },
     });
+
+    clearInterval(timer);
+    const totalSecs = ((Date.now() - startTime) / 1000).toFixed(1);
+    elapsed.textContent = `Completed in ${totalSecs}s`;
 
     for (const [strain, counts] of Object.entries(result) as [string, StrainResult][]) {
       const row = resultsTable.insertRow();
@@ -36,6 +48,8 @@ fileInput.addEventListener('change', async () => {
     progressLabel.textContent = '100%';
     status.textContent = 'Done.';
   } catch (err) {
+    clearInterval(timer);
+    elapsed.textContent = '';
     errorBox.textContent = String(err);
     status.textContent = '';
   }

@@ -1,15 +1,15 @@
 type PositionEntry = { specCount: number; nonspecCount: number; strain: string };
 
+type KmerHit = { entry: PositionEntry; spec: boolean };
+
 export type ParsedReference = {
-  specKmers: Map<string, string>;
-  nonspecKmers: Map<string, string>;
+  kmers: Map<string, KmerHit>;
   positions: Map<string, PositionEntry>;
   strains: string[];
 };
 
 export function parseReference(tsv: string): ParsedReference {
-  const specKmers = new Map<string, string>();
-  const nonspecKmers = new Map<string, string>();
+  const kmers = new Map<string, KmerHit>();
   const positions = new Map<string, PositionEntry>();
   const strainSet = new Set<string>();
 
@@ -21,16 +21,18 @@ export function parseReference(tsv: string): ParsedReference {
     const [chromosome, position, specKmer, nonspecKmer, strain] = line.split('\t');
     const positionId = `${chromosome}:${position}`;
 
-    specKmers.set(specKmer, positionId);
-    nonspecKmers.set(nonspecKmer, positionId);
-    strainSet.add(strain);
-
-    if (!positions.has(positionId)) {
-      positions.set(positionId, { specCount: 0, nonspecCount: 0, strain });
+    let entry = positions.get(positionId);
+    if (!entry) {
+      entry = { specCount: 0, nonspecCount: 0, strain };
+      positions.set(positionId, entry);
     }
+
+    kmers.set(specKmer, { entry, spec: true });
+    kmers.set(nonspecKmer, { entry, spec: false });
+    strainSet.add(strain);
   }
 
-  return { specKmers, nonspecKmers, positions, strains: [...strainSet] };
+  return { kmers, positions, strains: [...strainSet] };
 }
 
 export async function loadReference(url: string | URL): Promise<ParsedReference> {

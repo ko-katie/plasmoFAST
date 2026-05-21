@@ -13,20 +13,20 @@ describe('parseReference', () => {
     ref = parseReference(FIXTURE_TSV);
   });
 
-  test('builds specKmers map with one entry per TSV line', () => {
-    expect(ref.specKmers.size).toBe(4);
+  test('builds kmers map with spec + nonspec entry per TSV line', () => {
+    expect(ref.kmers.size).toBe(8);
   });
 
-  test('builds nonspecKmers map with one entry per TSV line', () => {
-    expect(ref.nonspecKmers.size).toBe(4);
+  test('maps a specific kmer to its position entry, flagged spec', () => {
+    const hit = ref.kmers.get('CATTATTATTATACTTTATATCTAA');
+    expect(hit?.spec).toBe(true);
+    expect(hit?.entry).toBe(ref.positions.get('Pf3D7_01_v3:130198'));
   });
 
-  test('maps a specific kmer to its position id', () => {
-    expect(ref.specKmers.get('CATTATTATTATACTTTATATCTAA')).toBe('Pf3D7_01_v3:130198');
-  });
-
-  test('maps a nonspecific kmer to its position id', () => {
-    expect(ref.nonspecKmers.get('CATTATTATTATTCTTTATATCTAA')).toBe('Pf3D7_01_v3:130198');
+  test('maps a nonspecific kmer to its position entry, flagged nonspec', () => {
+    const hit = ref.kmers.get('CATTATTATTATTCTTTATATCTAA');
+    expect(hit?.spec).toBe(false);
+    expect(hit?.entry).toBe(ref.positions.get('Pf3D7_01_v3:130198'));
   });
 
   test('initialises position counts to zero', () => {
@@ -44,6 +44,6 @@ describe('parseReference', () => {
   });
 
   test('skips the header line', () => {
-    expect(ref.specKmers.has('Strain specific kmer')).toBe(false);
+    expect(ref.kmers.has('Strain specific kmer')).toBe(false);
   });
 });

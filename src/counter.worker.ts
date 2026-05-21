@@ -35,14 +35,10 @@ self.onmessage = async (event: MessageEvent<{ file: File; referenceUrl?: string 
         if (lineIndex % 4 === 1) {
           for (let i = 0; i <= line.length - 25; i++) {
             const kmer = line.slice(i, i + 25);
-            const specPos = ref.specKmers.get(kmer);
-            if (specPos !== undefined) {
-              ref.positions.get(specPos)!.specCount++;
-            } else {
-              const nonspecPos = ref.nonspecKmers.get(kmer);
-              if (nonspecPos !== undefined) {
-                ref.positions.get(nonspecPos)!.nonspecCount++;
-              }
+            const hit = ref.kmers.get(kmer);
+            if (hit !== undefined) {
+              if (hit.spec) hit.entry.specCount++;
+              else hit.entry.nonspecCount++;
             }
           }
           readCount++;
