@@ -13,7 +13,6 @@ export function analyze(file: File, options: AnalyzeOptions = {}): Promise<Analy
 
   return new Promise((resolve, reject) => {
     const worker = new Worker(
-      /* @vite-ignore */
       new URL('./counter.worker.js', import.meta.url),
       { type: 'module' }
     );
@@ -33,7 +32,7 @@ export function analyze(file: File, options: AnalyzeOptions = {}): Promise<Analy
 
     worker.onerror = (event: ErrorEvent) => {
       worker.terminate();
-      reject(event);
+      reject(new Error(`Worker failed to load: ${event.message} (${event.filename}:${event.lineno})`));
     };
 
     worker.postMessage({ file, referenceUrl });

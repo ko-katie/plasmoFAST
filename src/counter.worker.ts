@@ -1,15 +1,20 @@
-import { loadReference } from './reference';
+self.addEventListener('error', (e) => {
+  self.postMessage({ type: 'error', message: `Worker load error: ${e.message} (${e.filename}:${e.lineno})` });
+});
+
+import { parseReference, loadReference } from './reference';
 import { getTextStream } from './parser';
 import { getCategory } from './classify';
 import type { AnalysisResult, StrainResult } from './types';
-
-const DEFAULT_REF_URL = new URL('../reference/25mer_rc_list.tsv', import.meta.url);
+import defaultRefText from '../reference/25mer_rc_list.tsv';
 
 self.onmessage = async (event: MessageEvent<{ file: File; referenceUrl?: string }>) => {
   const { file, referenceUrl } = event.data;
 
   try {
-    const ref = await loadReference(referenceUrl ?? DEFAULT_REF_URL.href);
+    const ref = referenceUrl
+      ? await loadReference(referenceUrl)
+      : parseReference(defaultRefText);
 
     const reader = getTextStream(file).getReader();
     let leftover = '';
@@ -28,7 +33,6 @@ self.onmessage = async (event: MessageEvent<{ file: File; referenceUrl?: string 
       for (const line of lines) {
         if (line.trim() === '') continue;
         if (lineIndex % 4 === 1) {
-          // sequence line — slide 25-mer window
           for (let i = 0; i <= line.length - 25; i++) {
             const kmer = line.slice(i, i + 25);
             const specPos = ref.specKmers.get(kmer);
