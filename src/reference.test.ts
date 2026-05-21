@@ -1,4 +1,4 @@
-import { parseReference } from './reference';
+import { parseReference, encodeKmer } from './reference';
 
 const FIXTURE_TSV = `Chromosome\tPosition\tStrain specific kmer\tNonstrain specific kmer\tStrain
 Pf3D7_01_v3\t130198\tCATTATTATTATACTTTATATCTAA\tCATTATTATTATTCTTTATATCTAA\tW2_Dd2
@@ -18,13 +18,13 @@ describe('parseReference', () => {
   });
 
   test('maps a specific kmer to its position entry, flagged spec', () => {
-    const hit = ref.kmers.get('CATTATTATTATACTTTATATCTAA');
+    const hit = ref.kmers.get(encodeKmer('CATTATTATTATACTTTATATCTAA'));
     expect(hit?.spec).toBe(true);
     expect(hit?.entry).toBe(ref.positions.get('Pf3D7_01_v3:130198'));
   });
 
   test('maps a nonspecific kmer to its position entry, flagged nonspec', () => {
-    const hit = ref.kmers.get('CATTATTATTATTCTTTATATCTAA');
+    const hit = ref.kmers.get(encodeKmer('CATTATTATTATTCTTTATATCTAA'));
     expect(hit?.spec).toBe(false);
     expect(hit?.entry).toBe(ref.positions.get('Pf3D7_01_v3:130198'));
   });
@@ -44,6 +44,6 @@ describe('parseReference', () => {
   });
 
   test('skips the header line', () => {
-    expect(ref.kmers.has('Strain specific kmer')).toBe(false);
+    expect(ref.strains).not.toContain('Strain');
   });
 });

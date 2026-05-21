@@ -2,7 +2,7 @@ self.addEventListener('error', (e) => {
   self.postMessage({ type: 'error', message: `Worker load error: ${e.message} (${e.filename}:${e.lineno})` });
 });
 
-import { parseReference, loadReference } from './reference';
+import { parseReference, loadReference, BASE_CODE, K, FOURK } from './reference';
 import { getTextStream } from './parser';
 import { getCategory } from './classify';
 import type { AnalysisResult, StrainResult } from './types';
@@ -33,12 +33,23 @@ self.onmessage = async (event: MessageEvent<{ file: File; referenceUrl?: string 
       for (const line of lines) {
         if (line.trim() === '') continue;
         if (lineIndex % 4 === 1) {
-          for (let i = 0; i <= line.length - 25; i++) {
-            const kmer = line.slice(i, i + 25);
-            const hit = ref.kmers.get(kmer);
-            if (hit !== undefined) {
-              if (hit.spec) hit.entry.specCount++;
-              else hit.entry.nonspecCount++;
+          let h = 0;
+          let valid = 0;
+          for (let i = 0; i < line.length; i++) {
+            const c = BASE_CODE[line.charCodeAt(i)];
+            if (c < 0) {
+              h = 0;
+              valid = 0;
+              continue;
+            }
+            h = (h * 4 + c) % FOURK;
+            valid++;
+            if (valid >= K) {
+              const hit = ref.kmers.get(h);
+              if (hit !== undefined) {
+                if (hit.spec) hit.entry.specCount++;
+                else hit.entry.nonspecCount++;
+              }
             }
           }
           readCount++;
