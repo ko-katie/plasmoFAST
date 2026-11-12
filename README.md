@@ -22,5 +22,40 @@ plasmoFAST outputs a {sample_name}_strain_output.txt file with the breakdown of 
 
 # K-mer generation
 The following section details the process by which k-mers were selected for use with _PlasmoFAST_
+Code developed using: [Hisat2 version 2.2.1](https://daehwankimlab.github.io/hisat2/download/), [gatk version 4.2.2.0](https://github.com/broadinstitute/gatk/releases), [samtools version 1.9](https://www.htslib.org/download/), [R version 4.4.2](https://cran.rstudio.com/), [picard version 2.9.4](https://broadinstitute.github.io/picard/), [vcftools version 0.1.15](https://sourceforge.net/projects/vcftools/), [slurm version 23.11.6](https://slurm.schedmd.com/)
 
 
+#### Determining variable positions
+After identifying high quality Illumina WGS data for each lab strain, we performed mapping and variant calling of each strain to the _P. falciparum_ 3D7 reference genome as described [here](https://github.com/ko-katie/pvmdr1) under "GATK Analysis", using the _P. falcpiarum_ unmasked_regions.intervals file uploaded to this repository.
+
+The resulting combined and filtered vcf file was then used to identify positions that differentiate between the lab strains.
+```
+python3 parse_vcf.py /path/to/all_samples_variants_filtered2.vcf /path/to/unmasked_regions.intervals /path/to/variable_positions_output.txt /path/to/pca_matrix_output.txt
+```
+* Takes the combined vcf and determines positions at which not all strains share the same genotype
+* all_samples_variants_filtered2.vcf is the vcf file outputted from the GATK analysis
+* unmasked_regions.intervals is the path to the provided unmasked_regions.intervals file
+* variable_positions_output.txt is an output file containing a list of positions at which the genotype of all of the strains are not the same
+* pca_matrix_output.txt is an output file containing a matrix representation of the variable position data, used to verify that the strains can be differentiated by the identified variable positions.
+```
+python3 annotated_positions_by_strain.py /path/to/pca_matrix_output.txt /path/to/annotated_variable_positions_list.txt 
+```
+* Uses the previously outputted pca matrix to identify positions at which one strain differs from all of the others
+* /path/to/pca_matrix_output.txt from running parse_vcf.py is inputted to identify positions at which the genotype of one strain differs from the genotype of all of the other strains
+* /path/to/annotated_variable_positions_list.txt is the output file which contains a tab delimited file with unique positions and the strain they are unique to
+```
+python3 filter_35bp_window.py /path/to/annotated_variable_positions_list.txt /path/to/annotated_variable_positions_list_window_filtered.txt
+```
+* Takes previously generated list of positions and ensures all positions are at least 35bp apart
+* /path/to/annotated_variable_positions_list.txt that was previously generated
+* /path/to/annotated_variable_positions_list_window_filtered.txt output file from filtering positions to be at least 35bp apart
+```
+python3 get_variable_positions_and_alleles_new.py /path/to/PlasmoDB-63_Pfalciparum3D7_Genome.fasta /path/to/annotated_variable_positions_list_window_filtered.txt /path/to/all_samples_variants_filtered2.vcf /path/to/working_dir/
+```
+* Takes filtered list of variable positions and tests k-mers of different lengths spanning those positions to investigate necessary k-mer size for minimizing k-mers being present elsewhere in the genome
+* /path/to/PlasmoDB-63_Pfalciparum3D7_Genome.fasta to determine sequences of k-mers spanning variable positions
+* /path/to/all_samples_variants_filtered2.vcf to determine 3D7-specific and alternate alleles at each position
+* /path/to/working_dir/ where two output files will be created: 1) tab-delimited file storing the 3D7 and non-3D7 allele at each position and 2) containing the number of specific and non-specific k-mers for each strain at each k-mer length tested
+```
+python3 get_kmers_present_once_in_genome.py 
+```
