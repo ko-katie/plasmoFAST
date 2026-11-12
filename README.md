@@ -19,3 +19,8 @@ bash run_kmc_new.sh /path/to/working_directory /path/to/sample_input_file.txt
 
 ### Output
 plasmoFAST outputs a {sample_name}_strain_output.txt file with the breakdown of "Low Coverage", "Specific", "Nonspecific", or "Mixed" positions found for each laboratory strain, as well as a stacked barplot representing this data.
+
+# K-mer generation
+The following section details the process by which k-mers were selected for use with _PlasmoFAST_
+
+
