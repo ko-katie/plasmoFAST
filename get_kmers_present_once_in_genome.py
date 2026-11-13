@@ -67,8 +67,6 @@ print("got chromosomes")
 
 with open(kmer_freq_path, "w") as kmer_freq_file:
 
-    kmer_freq_file.write("Kmer Length\tPositions Analyzed\tSpecific kmers found once\tAlt kmers found at least once\tRc kmers found at least once\t" + "\t".join(strain_list) + "\t" + "\t".join(strain_list)+ "\t" + "\t".join(strain_list) + "\n")
-
     #get kmer frequencies by length (5 --> 30 bp)
     #for kmer_length in range(5,31):
     kmer_length = 25
