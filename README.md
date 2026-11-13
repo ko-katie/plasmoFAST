@@ -54,8 +54,26 @@ python3 get_variable_positions_and_alleles_new.py /path/to/PlasmoDB-63_Pfalcipar
 ```
 * Takes filtered list of variable positions and tests k-mers of different lengths spanning those positions to investigate necessary k-mer size for minimizing k-mers being present elsewhere in the genome
 * /path/to/PlasmoDB-63_Pfalciparum3D7_Genome.fasta to determine sequences of k-mers spanning variable positions
-* /path/to/all_samples_variants_filtered2.vcf to determine 3D7-specific and alternate alleles at each position
-* /path/to/working_dir/ where two output files will be created: 1) tab-delimited file storing the 3D7 and non-3D7 allele at each position and 2) containing the number of specific and non-specific k-mers for each strain at each k-mer length tested
+* /path/to/annotated_variable_positions_list_window_filtered.txt is inputted to only analyze positions at least 35bp apart
+* /path/to/all_samples_variants_filtered2.vcf to determine 3D7-expected and alternate alleles at each position
+* /path/to/working_dir/ where two output files will be created: 1) "variable_position_alleles.txt" file storing the 3D7 and non-3D7 allele at each position and 2) "kmer_frequencies.txt" file containing the number of specific and non-specific k-mers for each strain at each k-mer length tested
 ```
-python3 get_kmers_present_once_in_genome.py 
+python3 get_kmers_present_once_in_genome.py /path/to/PlasmoDB-63_Pfalciparum3D7_Genome.fasta /path/to/working_dir/variable_position_alleles.txt /path/to/25bp_kmers.txt
 ```
+* Writes out 25bp kmers for positions where the 3D7-expected k-mer is present only once in the _P. falciparum_ genome, the non-3D7-expected k-mer is not present, and the reverse complement of either is not present.
+* /path/to/PlasmoDB-63_Pfalciparum3D7_Genome.fasta to get kmers from 3D7 reference
+* /path/to/working_dir/variable_position_alleles.txt to get expected specific and alternate alleles
+* /path/to/25bp_kmers.txt to store correct k-mers
+```
+python3 filter_kmers_by_human.py /path/to/25bp_kmers.txt /path/to/25bp_kmers_human_filtered.txt /path/to/GRCh38.fasta
+```
+* Filter out previously generated k-mers if they or their reverse complement appear in the human genome
+* /path/to/25bp_kmers.txt to filter previously generated 25bp kmers for presence in human genome
+* /path/to/25bp_kmers_human_filtered.txt to output filtered 25bp kmers
+* /path/to/GRCh38.fasta is used to check for k-mer presence in human genome, can be downloaded [here](https://www.gencodegenes.org/human/release_38.html)
+```
+python3 add_reverse_complements.py /path/to/25bp_kmers_human_filtered.txt /path/to/25bp_kmers_human_filtered_rc.txt
+```
+* Create final k-mer list that includes reverse complement sequence of each final k-mer
+* /path/to/25bp_kmers_human_filtered.txt containing kmers not found in human
+* /path/to/25bp_kmers_human_filtered_rc.txt output file with reverse complements added
